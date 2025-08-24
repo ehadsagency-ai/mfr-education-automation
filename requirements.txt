@@ -1,0 +1,13 @@
+langchain
+langgraph
+openai
+anthropic
+deepseek-api
+google-cloud-storage
+google-auth
+google-api-python-client
+pandas
+numpy
+pytest
+black
+flake8
