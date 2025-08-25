@@ -1,0 +1,27 @@
+# Environnement
+.env
+.venv/
+__pycache__/
+
+# Logs
+*.log
+
+# Données
+*.csv
+*.json
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# Déploiement
+/build/
+/dist/
+
+# Google Apps Script
+.clasp.json
+
+# Fichiers spécifiques au système d'exploitation
+.DS_Store
+thumbs.db
