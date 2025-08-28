@@ -1,0 +1,29 @@
+name: Publish API Documentation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'langchain-agents/**'
+
+jobs:
+  publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate OpenAPI Specs
+        # Cette étape exécutera un script pour générer les spécifications OpenAPI des agents
+        run: echo "Génération des spécifications OpenAPI en attente d'implémentation"
+
+      - name: Publish to GitHub Pages
+        # Cette étape publiera la documentation sur GitHub Pages
+        run: echo "Publication sur GitHub Pages en attente d'implémentation"
