@@ -1,0 +1,30 @@
+name: Release Management
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Permet de récupérer tout l'historique pour les outils de release
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Determine Next Version and Create Release
+        # Cette étape utilisera un outil comme semantic-release ou un script personnalisé
+        # pour déterminer la prochaine version, créer un tag Git et une GitHub Release.
+        run: echo "Gestion des versions en attente d'implémentation"
+
+      - name: Update CHANGELOG
+        # Cette étape mettra à jour le fichier CHANGELOG.md
+        run: echo "Mise à jour du CHANGELOG en attente d'implémentation"
