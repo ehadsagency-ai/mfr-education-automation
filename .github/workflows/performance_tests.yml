@@ -1,0 +1,40 @@
+name: Performance Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Chaque dimanche à minuit
+  workflow_dispatch: # Permet de déclencher manuellement
+
+jobs:
+  run-performance-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Deploy Staging Environment (if needed)
+        # Cette étape déploiera une instance temporaire pour les tests de performance
+        run: echo "Déploiement de l'environnement de staging en attente d'implémentation"
+
+      - name: Run Locust Tests
+        # Cette étape exécutera les tests de charge avec Locust
+        run: echo "Exécution des tests Locust en attente d'implémentation"
+
+      - name: Run Pytest Performance Tests
+        # Cette étape exécutera les tests de performance spécifiques avec Pytest
+        run: echo "Exécution des tests Pytest en attente d'implémentation"
+
+      - name: Generate and Analyze Report
+        # Cette étape générera un rapport et analysera les résultats
+        run: echo "Génération et analyse du rapport en attente d'implémentation"
+
+      - name: Notify on Regression
+        # Cette étape enverra une notification si des régressions sont détectées
+        run: echo "Notification des régressions en attente d'implémentation"
