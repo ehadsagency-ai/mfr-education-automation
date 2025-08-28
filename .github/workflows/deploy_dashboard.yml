@@ -1,0 +1,32 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/dashboard/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: | 
+          cd frontend/dashboard
+          npm install
+
+      - name: Build Application
+        run: | 
+          cd frontend/dashboard
+          npm run build
+
+      - name: Deploy to Hosting Service
+        # Cette étape déploiera l'application sur un service d'hébergement (ex: Google Cloud Run, GitHub Pages)
+        run: echo "Déploiement du tableau de bord en attente d'implémentation"
