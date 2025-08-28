@@ -1,0 +1,39 @@
+name: Manage Configurations
+
+on:
+  push:
+    paths:
+      - 'config/teachers.yaml'
+      - 'config/subjects.yaml'
+
+jobs:
+  validate-and-deploy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate YAML syntax
+        run: |
+          python -c "import yaml; with open('config/teachers.yaml', 'r') as f: yaml.safe_load(f)"
+          python -c "import yaml; with open('config/subjects.yaml', 'r') as f: yaml.safe_load(f)"
+
+      - name: Deploy Configuration Changes
+        # Cette étape sera complétée avec la logique de déploiement réelle
+        # par exemple, mise à jour de variables d'environnement, redéploiement d'agents
+        run: echo "Déploiement des changements de configuration en attente d'implémentation"
+
+      - name: Run Integration Tests (Config)
+        # Cette étape sera complétée avec des tests d'intégration spécifiques à la configuration
+        run: echo "Tests d'intégration de configuration en attente d'implémentation"
+
+      - name: Notify on Completion
+        # Cette étape enverra une notification (par exemple, via un webhook ou email)
+        run: echo "Notification de fin de déploiement de configuration"
