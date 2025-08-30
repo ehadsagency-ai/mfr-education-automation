@@ -1,0 +1,31 @@
+referentiels:
+  - id: "referentiel_national_3eme"
+    name: "Référentiel National 3ème"
+    version: "2025.0"
+    competences:
+      - id: "D1.1"
+        name: "Maîtriser la langue française"
+        description: "Comprendre, s'exprimer à l'écrit et à l'oral"
+        indicateurs:
+          - "Utilise un vocabulaire précis"
+          - "Structure ses phrases correctement"
+          - "Respecte les règles d'orthographe et de grammaire"
+      - id: "D1.3"
+        name: "Utiliser les langages scientifiques"
+        description: "Maîtriser les concepts mathématiques et scientifiques"
+        indicateurs:
+          - "Résout des problèmes mathématiques"
+          - "Applique les principes de physique-chimie"
+      - id: "D2"
+        name: "Méthodes et outils pour apprendre (EMI)"
+        description: "Développer son autonomie et sa capacité à apprendre"
+        indicateurs:
+          - "Organise son travail"
+          - "Utilise les outils numériques de manière pertinente"
+      - id: "D4"
+        name: "Systèmes naturels et techniques"
+        description: "Comprendre le fonctionnement des systèmes"
+        indicateurs:
+          - "Identifie les composants d'un système technique"
+          - "Explique les interactions au sein d'un système"
+

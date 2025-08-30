@@ -1,0 +1,8 @@
+teachers:
+  - id: "teacher_1"
+    name: "Professeur Principal"
+    email: "prof.principal@example.com"
+    subjects: ["math", "physics", "info", "english"]
+    preferences:
+      ai_model: "Claude"
+

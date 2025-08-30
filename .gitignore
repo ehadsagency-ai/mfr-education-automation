@@ -59,6 +59,18 @@ htmlcov/
 # Jupyter
 .ipynb_checkpoints/
 
+# Data files
+*.csv
+*.json
+*.sqlite
+
+# Deployment
+/build/
+/dist/
+
+# Google Apps Script
+.clasp.json
+
 # Node.js (for Google Apps Scripts)
 node_modules/
 npm-debug.log*
