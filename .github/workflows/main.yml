@@ -1,0 +1,39 @@
+name: MFR Education Automation
+
+on:
+  push:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 6 * * 1'  # Chaque lundi 6h (préparation semaine)
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest black flake8
+          
+      - name: Run linting
+        run: |
+          black --check .
+          flake8 .
+          
+      - name: Run tests
+        run: pytest tests/
+        
+      - name: Deploy to Google Cloud
+        # Cette étape sera complétée plus tard avec vos configurations GCP
+        run: echo "Déploiement GCP en attente de configuration"
+          
+      - name: Update Google Apps Scripts
+        # Cette étape sera complétée plus tard avec vos configurations GAS
+        run: echo "Mise à jour GAS en attente de configuration"

@@ -1,0 +1,43 @@
+name: Test Google Tools Connection
+
+on:
+  workflow_dispatch: # Permet de déclencher le workflow manuellement
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
+      - name: Run Google Sheets Test
+        run: python -c "from langchain_agents.tools.google_sheets_manager import GoogleSheetsManager; manager = GoogleSheetsManager(); print(manager.read_sheet_data('1G5e568JzOA7ohsNGPjJjHU1Pmn7P550SWyaADN7rULA', 'Sheet1!A1'))"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Run Google Docs Test
+        run: python -c "from langchain_agents.tools.google_docs_manager import GoogleDocsManager; manager = GoogleDocsManager(); print(manager.create_document('Test Doc IA'))"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Run Google Classroom Test
+        run: python -c "from langchain_agents.tools.google_classroom_manager import GoogleClassroomManager; manager = GoogleClassroomManager(); print(manager.list_courses())"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Run Google Drive Test
+        run: python -c "from langchain_agents.tools.google_drive_manager import GoogleDriveManager; manager = GoogleDriveManager(); print(manager.create_folder('Test Folder IA'))"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Run Gmail Test
+        run: python -c "from langchain_agents.tools.gmail_manager import GmailManager; manager = GmailManager(); print(manager.send_email('ehads.agency@gmail.com', 'Test Email IA', 'Ceci est un email de test.'))"
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}

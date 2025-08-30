@@ -1,0 +1,26 @@
+{
+  "name": "MFR Education Development",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/google-cloud-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {"version": "18"}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter",
+        "googlecloudtools.cloudcode",
+        "ms-vscode.vscode-json"
+      ]
+    }
+  },
+  "postCreateCommand": "pip install -r requirements.txt && npm install -g @google/clasp",
+  "remoteUser": "vscode",
+  "secrets": {
+    "CLAUDE_API_KEY": "required",
+    "OPENAI_API_KEY": "required", 
+    "DEEPSEEK_API_KEY": "required",
+    "GOOGLE_CREDENTIALS": "required"
+  }
+}
