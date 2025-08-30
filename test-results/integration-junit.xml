@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="11" failures="0" errors="0" time="2.867">
+    <testsuite name="tests/integration/phase3-security.test.ts" timestamp="2025-08-30T14:52:24.109Z" hostname="ip-172-31-7-171" tests="11" failures="0" errors="0" skipped="0" time="1.937">
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Push Notifications System &gt; should validate push notification dependencies" time="0.045">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Push Notifications System &gt; should handle notification data structure" time="0.02">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Data Export System &gt; should validate export job structure" time="0.066">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Data Export System &gt; should handle export formats" time="0.021">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Advanced RGPD Manager &gt; should validate audit entry structure" time="0.009">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Advanced RGPD Manager &gt; should handle RGPD compliance data" time="0.046">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Advanced RGPD Manager &gt; should validate data retention policies" time="0.015">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; MongoDB Integration &gt; should connect to test database" time="0.015">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; MongoDB Integration &gt; should handle encrypted field operations" time="0.037">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Service Integration &gt; should validate MongoDB connectivity" time="0.048">
+        </testcase>
+        <testcase classname="tests/integration/phase3-security.test.ts" name="Phase 3: Security &amp; RGPD Integration Tests &gt; Service Integration &gt; should validate service dependencies" time="0.015">
+        </testcase>
+    </testsuite>
+</testsuites>
