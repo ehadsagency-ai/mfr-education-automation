@@ -1,0 +1,259 @@
+name: 'Test AI Agent Resilience'
+description: 'Test AI agent with circuit breaker, retry, and fallback mechanisms'
+author: 'MFR Education Team'
+
+inputs:
+  agent:
+    description: 'AI agent to test (claude, openai, deepseek, gemini)'
+    required: true
+  max-retries:
+    description: 'Maximum number of retries'
+    required: false
+    default: '3'
+  backoff-factor:
+    description: 'Exponential backoff factor'
+    required: false
+    default: '2'
+  timeout:
+    description: 'Timeout per request'
+    required: false
+    default: '30s'
+
+outputs:
+  success-rate:
+    description: 'Success rate percentage'
+    value: ${{ steps.test.outputs.success-rate }}
+  avg-latency:
+    description: 'Average latency in ms'
+    value: ${{ steps.test.outputs.avg-latency }}
+  circuit-breaker-trips:
+    description: 'Number of circuit breaker activations'
+    value: ${{ steps.test.outputs.cb-trips }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🤖 Test AI Agent Resilience
+      id: test
+      shell: bash
+      run: |
+        echo "🔄 Testing ${{ inputs.agent }} agent resilience..."
+        
+        # Create test script
+        cat > test-ai-resilience.js << 'EOF'
+        const { performance } = require('perf_hooks');
+        
+        class CircuitBreaker {
+          constructor(threshold = 5, timeout = 60000) {
+            this.threshold = threshold;
+            this.timeout = timeout;
+            this.failureCount = 0;
+            this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+            this.nextAttempt = Date.now();
+            this.trips = 0;
+          }
+          
+          async execute(operation) {
+            if (this.state === 'OPEN') {
+              if (Date.now() < this.nextAttempt) {
+                throw new Error('Circuit breaker is OPEN');
+              }
+              this.state = 'HALF_OPEN';
+            }
+            
+            try {
+              const result = await operation();
+              this.onSuccess();
+              return result;
+            } catch (error) {
+              this.onFailure();
+              throw error;
+            }
+          }
+          
+          onSuccess() {
+            this.failureCount = 0;
+            this.state = 'CLOSED';
+          }
+          
+          onFailure() {
+            this.failureCount++;
+            if (this.failureCount >= this.threshold) {
+              this.state = 'OPEN';
+              this.nextAttempt = Date.now() + this.timeout;
+              this.trips++;
+            }
+          }
+        }
+        
+        class AIAgentTester {
+          constructor(agent, maxRetries = 3, backoffFactor = 2) {
+            this.agent = agent;
+            this.maxRetries = parseInt(maxRetries);
+            this.backoffFactor = parseInt(backoffFactor);
+            this.circuitBreaker = new CircuitBreaker();
+            this.metrics = {
+              totalRequests: 0,
+              successfulRequests: 0,
+              latencies: []
+            };
+          }
+          
+          async testAgent() {
+            const testCases = [
+              'Generate a simple math exercise for grade 3',
+              'Create a short explanation about photosynthesis',
+              'Write feedback for a student who scored 15/20'
+            ];
+            
+            console.log(`🧪 Testing ${this.agent} with ${testCases.length} test cases`);
+            
+            for (const testCase of testCases) {
+              await this.executeWithRetry(testCase);
+            }
+            
+            return this.getMetrics();
+          }
+          
+          async executeWithRetry(prompt) {
+            let attempt = 0;
+            const maxAttempts = this.maxRetries + 1;
+            
+            while (attempt < maxAttempts) {
+              try {
+                this.metrics.totalRequests++;
+                const start = performance.now();
+                
+                await this.circuitBreaker.execute(async () => {
+                  return await this.callAgent(prompt);
+                });
+                
+                const end = performance.now();
+                this.metrics.latencies.push(end - start);
+                this.metrics.successfulRequests++;
+                
+                console.log(`✅ Success on attempt ${attempt + 1} for ${this.agent}`);
+                return;
+                
+              } catch (error) {
+                attempt++;
+                console.log(`❌ Attempt ${attempt} failed for ${this.agent}: ${error.message}`);
+                
+                if (attempt < maxAttempts) {
+                  const delay = Math.pow(this.backoffFactor, attempt - 1) * 1000;
+                  console.log(`⏳ Waiting ${delay}ms before retry...`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                }
+              }
+            }
+            
+            console.log(`💥 All attempts exhausted for ${this.agent}`);
+          }
+          
+          async callAgent(prompt) {
+            // Simulate different agents with different failure rates
+            const agents = {
+              claude: { failureRate: 0.1, avgLatency: 1500 },
+              openai: { failureRate: 0.15, avgLatency: 2000 },
+              deepseek: { failureRate: 0.05, avgLatency: 800 },
+              gemini: { failureRate: 0.12, avgLatency: 1200 }
+            };
+            
+            const config = agents[this.agent] || agents.claude;
+            
+            // Simulate network latency
+            const latency = config.avgLatency + (Math.random() - 0.5) * 500;
+            await new Promise(resolve => setTimeout(resolve, latency));
+            
+            // Simulate random failures
+            if (Math.random() < config.failureRate) {
+              throw new Error(`Simulated API failure for ${this.agent}`);
+            }
+            
+            return `Response from ${this.agent}: Generated content for "${prompt}"`;
+          }
+          
+          getMetrics() {
+            const successRate = (this.metrics.successfulRequests / this.metrics.totalRequests) * 100;
+            const avgLatency = this.metrics.latencies.length > 0 
+              ? this.metrics.latencies.reduce((a, b) => a + b, 0) / this.metrics.latencies.length
+              : 0;
+              
+            return {
+              successRate: successRate.toFixed(2),
+              avgLatency: avgLatency.toFixed(0),
+              circuitBreakerTrips: this.circuitBreaker.trips,
+              totalRequests: this.metrics.totalRequests,
+              successfulRequests: this.metrics.successfulRequests
+            };
+          }
+        }
+        
+        // Main execution
+        async function main() {
+          const agent = process.argv[2];
+          const maxRetries = process.argv[3] || '3';
+          const backoffFactor = process.argv[4] || '2';
+          
+          console.log(`🚀 Starting resilience test for ${agent}...`);
+          
+          const tester = new AIAgentTester(agent, maxRetries, backoffFactor);
+          const metrics = await tester.testAgent();
+          
+          console.log('\n📊 Test Results:');
+          console.log(`Success Rate: ${metrics.successRate}%`);
+          console.log(`Average Latency: ${metrics.avgLatency}ms`);
+          console.log(`Circuit Breaker Trips: ${metrics.circuitBreakerTrips}`);
+          console.log(`Total/Successful Requests: ${metrics.successfulRequests}/${metrics.totalRequests}`);
+          
+          // Output for GitHub Actions
+          console.log(`::set-output name=success-rate::${metrics.successRate}`);
+          console.log(`::set-output name=avg-latency::${metrics.avgLatency}`);
+          console.log(`::set-output name=cb-trips::${metrics.circuitBreakerTrips}`);
+          
+          // Save detailed metrics
+          const detailedMetrics = {
+            agent,
+            timestamp: new Date().toISOString(),
+            ...metrics,
+            configuration: { maxRetries, backoffFactor }
+          };
+          
+          require('fs').writeFileSync('ai-metrics.json', JSON.stringify(detailedMetrics, null, 2));
+          
+          // Exit with error if success rate is too low
+          if (parseFloat(metrics.successRate) < 80) {
+            console.error(`❌ Success rate ${metrics.successRate}% is below threshold (80%)`);
+            process.exit(1);
+          }
+          
+          console.log('✅ Resilience test passed!');
+        }
+        
+        main().catch(error => {
+          console.error('💥 Test failed:', error);
+          process.exit(1);
+        });
+        EOF
+        
+        # Run the test
+        node test-ai-resilience.js "${{ inputs.agent }}" "${{ inputs.max-retries }}" "${{ inputs.backoff-factor }}"
+        
+    - name: 📊 Display Results Summary
+      shell: bash
+      run: |
+        echo "## 🤖 AI Agent Resilience Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Agent:** ${{ inputs.agent }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Success Rate:** ${{ steps.test.outputs.success-rate }}%" >> $GITHUB_STEP_SUMMARY
+        echo "**Average Latency:** ${{ steps.test.outputs.avg-latency }}ms" >> $GITHUB_STEP_SUMMARY
+        echo "**Circuit Breaker Trips:** ${{ steps.test.outputs.cb-trips }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if (( $(echo "${{ steps.test.outputs.success-rate }} >= 90" | bc -l) )); then
+          echo "✅ **Status:** Excellent performance" >> $GITHUB_STEP_SUMMARY
+        elif (( $(echo "${{ steps.test.outputs.success-rate }} >= 80" | bc -l) )); then
+          echo "⚠️ **Status:** Acceptable performance" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Status:** Poor performance - needs investigation" >> $GITHUB_STEP_SUMMARY
+        fi

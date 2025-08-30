@@ -1,0 +1,48 @@
+# ZAP Security Rules for MFR Education Automation
+# Format: WARN/IGNORE	RULE_ID	URL_REGEX	PARAMETER_REGEX	REASON
+
+# Ignore false positives for educational content
+IGNORE	10015	.*	.*	Educational content may contain mixed case patterns
+IGNORE	10021	.*	.*	X-Content-Type-Options not strictly required for static assets
+
+# Authentication and session warnings  
+WARN	10011	.*/api/auth/.*	.*	Ensure secure cookie attributes
+WARN	10027	.*/api/.*	.*	Information disclosure through HTTP headers
+
+# Content Security Policy
+WARN	10038	.*	.*	Content Security Policy Header Missing
+WARN	10063	.*	.*	Feature Policy Header Missing
+
+# HTTPS and transport security
+WARN	10035	.*	.*	Strict Transport Security Header Missing in HTTPS
+WARN	10096	.*	.*	HTTP Strict Transport Security Missing
+
+# Input validation (critical for education data)
+WARN	40012	.*/api/.*	.*	Cross-Site Scripting Reflected
+WARN	40014	.*/api/.*	.*	Cross-Site Scripting Persistent  
+WARN	90019	.*/api/.*	.*	Code Injection
+WARN	90020	.*/api/.*	.*	Command Injection
+
+# SQL/NoSQL Injection (MongoDB)
+WARN	40018	.*/api/.*	.*	SQL Injection
+WARN	90030	.*/api/.*	.*	NoSQL Injection
+
+# Business logic
+WARN	90005	.*/api/students/.*	.*	Weak Authentication Method
+WARN	90006	.*/api/auth/.*	.*	Insufficient Authentication
+
+# File upload security (for student work)
+WARN	90010	.*/api/upload/.*	.*	File Upload
+WARN	90029	.*/api/.*	.*	Path Traversal
+
+# API specific rules
+WARN	90024	.*/api/.*	.*	Generic Padding Oracle
+WARN	90025	.*/api/.*	.*	Expression Language Injection
+
+# Student data protection (RGPD compliance)
+WARN	90021	.*/api/students/.*	.*	Sensitive Information in URL
+WARN	90022	.*/api/parents/.*	.*	Sensitive Information in HTTP Referrer Header
+
+# Mobile app security
+WARN	90026	.*	.*	Insecure HTTP Method
+WARN	90028	.*	.*	Insecure Randomness

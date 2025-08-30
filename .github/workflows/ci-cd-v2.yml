@@ -1,0 +1,317 @@
+name: 🚀 CI/CD v2.0 - Modern Architecture
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'  # Monday 6h - Weekly health check
+
+# Cancel in-progress jobs on new push
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  
+jobs:
+  # ===== PHASE 1: CODE QUALITY =====
+  quality:
+    name: 🔍 Code Quality & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🔧 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        
+      - name: 🎨 TypeScript & ESLint check
+        run: |
+          npm run type-check
+          npm run lint
+          
+      - name: 🔒 Security audit
+        run: npm audit --audit-level high
+        continue-on-error: true
+        
+      - name: 📊 Upload code coverage
+        uses: codecov/codecov-action@v3
+        if: success()
+
+  # ===== PHASE 2: TESTS =====
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        node-version: ['18', '20']
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: 🔧 Install dependencies
+        run: npm ci
+        
+      - name: 🧪 Run unit tests
+        run: npm run test:unit
+        env:
+          CI: true
+          
+      - name: 🔗 Run integration tests
+        run: npm run test:integration
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_TEST_URI }}
+          
+      - name: 📊 Generate test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Test Results (Node ${{ matrix.node-version }})
+          path: 'test-results.xml'
+          reporter: jest-junit
+
+  # ===== PHASE 3: AI AGENTS TESTING =====
+  test-ai-agents:
+    name: 🤖 AI Agents Resilience
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: ['claude', 'openai', 'deepseek', 'gemini']
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🔧 Install dependencies
+        run: npm ci
+        
+      - name: 🤖 Test ${{ matrix.agent }} agent with resilience
+        uses: ./.github/actions/test-ai-resilience
+        with:
+          agent: ${{ matrix.agent }}
+          max-retries: 3
+          backoff-factor: 2
+          timeout: 30s
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          
+      - name: 📊 Upload AI metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-metrics-${{ matrix.agent }}
+          path: ai-metrics.json
+          retention-days: 7
+
+  # ===== PHASE 4: BUILD & PERFORMANCE =====
+  build:
+    name: 🏗️ Build & Performance
+    runs-on: ubuntu-latest
+    needs: [quality, test]
+    timeout-minutes: 15
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🔧 Install dependencies
+        run: npm ci
+        
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: 📊 Analyze bundle size
+        run: npm run analyze
+        
+      - name: ⚡ Performance tests
+        run: npm run test:performance
+        
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
+          
+      - name: 🔍 Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './.lighthouserc.json'
+          uploadArtifacts: true
+
+  # ===== PHASE 5: E2E TESTS =====
+  e2e:
+    name: 🎭 End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    strategy:
+      matrix:
+        browser: ['chromium', 'firefox', 'webkit']
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 🔧 Install dependencies
+        run: npm ci
+        
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          
+      - name: 🎭 Install Playwright
+        run: npx playwright install ${{ matrix.browser }}
+        
+      - name: 🧪 Run E2E tests
+        run: npm run test:e2e:${{ matrix.browser }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_TEST_URI }}
+          
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
+
+  # ===== PHASE 6: SECURITY SCAN =====
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 🔍 Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: 📊 Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: 🔒 OWASP ZAP security scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+  # ===== PHASE 7: DEPLOY =====
+  deploy:
+    name: 🚀 Deploy
+    runs-on: ubuntu-latest
+    needs: [test-ai-agents, e2e, security]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          
+      - name: 🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          
+      - name: 🔄 Purge Cloudflare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          
+      - name: 📊 Post deployment health check
+        run: |
+          echo "⏳ Waiting for deployment..."
+          sleep 30
+          curl -f https://mfr-education.github.io/health || exit 1
+          
+      - name: 🎉 Notify success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          text: '🎉 Deployment successful! v2.0 is live'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # ===== MONITORING & METRICS =====
+  monitoring:
+    name: 📊 Update Monitoring
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    steps:
+      - name: 📊 Send metrics to Sentry
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: mfr-education
+          SENTRY_PROJECT: automation-v2
+        with:
+          environment: production
+          
+      - name: 📈 Update UptimeRobot
+        run: |
+          curl -X POST "https://api.uptimerobot.com/v2/newMonitor" \
+          -d "api_key=${{ secrets.UPTIMEROBOT_API_KEY }}" \
+          -d "friendly_name=MFR Education v2.0" \
+          -d "url=https://mfr-education.github.io" \
+          -d "type=1"
