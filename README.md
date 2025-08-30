@@ -14,7 +14,7 @@
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)](https://github.com/features/actions)
 [![RGPD](https://img.shields.io/badge/RGPD-Compliant-green.svg)](#conformité-rgpd)
 
-[🚀 **Démo Live**](https://mfr-education.github.io) • [📖 **Documentation**](https://github.com/ehadsagency-ai/mfr-education-automation/wiki) • [🐛 **Issues**](https://github.com/ehadsagency-ai/mfr-education-automation/issues) • [💬 **Discussions**](https://github.com/ehadsagency-ai/mfr-education-automation/discussions)
+[🚀 **Démo Live**](https://mfr-education.github.io) • [📖 **DEVbook**](DEVBOOK.md) • [📋 **Documentation**](docs/) • [🐛 **Issues**](https://github.com/ehadsagency-ai/mfr-education-automation/issues) • [💬 **Discussions**](https://github.com/ehadsagency-ai/mfr-education-automation/discussions)
 
 </div>
 
@@ -1396,6 +1396,25 @@ git clone https://github.com/ehadsagency-ai/mfr-education-automation.git
 cd mfr-education-automation/v2
 npm install && npm run dev
 ```
+
+## 📖 **DEVbook - Documentation Technique Complète**
+
+Pour une compréhension approfondie du projet, consultez notre **DEVbook** qui contient :
+
+- 🎯 **Contexte et vision** détaillés
+- 🏗️ **Architecture technique finale** avec diagrammes
+- 🚨 **Problèmes critiques** identifiés et leurs solutions
+- 💾 **Architecture MongoDB** optimisée
+- 🔧 **Optimisations de performance** et cache multi-niveaux  
+- 📊 **Métriques et monitoring** complets
+- 🔒 **Sécurité RGPD** et conformité
+- 🚀 **Plan de déploiement** par phases
+- 💰 **Budget et ROI** détaillés
+- 🧪 **Tests et validation** méthodologie
+
+**👉 [Consulter le DEVbook complet](DEVBOOK.md)**
+
+---
 
 **⭐ N'oubliez pas de star le projet si il vous plaît !**
 
