@@ -14,7 +14,7 @@
 [![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue.svg)](https://github.com/features/actions)
 [![RGPD](https://img.shields.io/badge/RGPD-Compliant-green.svg)](#conformité-rgpd)
 
-[🚀 **Démo Live**](https://mfr-education.github.io) • [📖 **DEVbook**](DEVBOOK.md) • [📋 **Documentation**](docs/) • [🐛 **Issues**](https://github.com/ehadsagency-ai/mfr-education-automation/issues) • [💬 **Discussions**](https://github.com/ehadsagency-ai/mfr-education-automation/discussions)
+[🚀 **Démo Live**](https://mfr-education.github.io) • [📋 **Spécifications**](SPECIFICATIONS.md) • [📖 **DEVbook**](DEVBOOK.md) • [📚 **Documentation**](docs/) • [🐛 **Issues**](https://github.com/ehadsagency-ai/mfr-education-automation/issues) • [💬 **Discussions**](https://github.com/ehadsagency-ai/mfr-education-automation/discussions)
 
 </div>
 
